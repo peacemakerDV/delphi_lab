@@ -1,0 +1,338 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Grids, Menus;
+
+type
+  TForm1 = class(TForm)
+    MainMenu1: TMainMenu;
+    Ed4: TEdit;
+    Ed1: TEdit;
+    Ed2: TEdit;
+    Ed3: TEdit;
+    Btn2: TButton;
+    Btn1: TButton;
+    Btn3: TButton;
+    Btn4: TButton;
+    Memo1: TMemo;
+    strg1: TStringGrid;
+    St1: TStaticText;
+    St2: TStaticText;
+    N1: TMenuItem;
+    Lbl5: TLabel;
+    Lbl2: TLabel;
+    Lbl3: TLabel;
+    Lbl4: TLabel;
+    Lbl1: TLabel;
+    Cret: TMenuItem;
+    Rew_Fil: TMenuItem;
+    Red_Fil: TMenuItem;
+    App_Fil: TMenuItem;
+    Viw_Fil: TMenuItem;
+    N2: TMenuItem;
+    Kol_Fil: TMenuItem;
+    Mil_Fil: TMenuItem;
+    Max_Fil: TMenuItem;
+    Ex_it: TMenuItem;
+    Lbl6: TLabel;
+    Lbl7: TLabel;
+    Lbl8: TLabel;
+    Lbl9: TLabel;
+    procedure FormActivate(Sender: TObject);
+    procedure Rew_FilClick(Sender: TObject);
+    procedure Red_FilClick(Sender: TObject);
+    procedure Btn2Click(Sender: TObject);
+    procedure Ed4Change(Sender: TObject);
+    procedure App_FilClick(Sender: TObject);
+    procedure Viw_FilClick(Sender: TObject);
+    procedure Ed1Change(Sender: TObject);
+    procedure Ed2Change(Sender: TObject);
+    procedure Ed3Change(Sender: TObject);
+    procedure Ed3KeyPress(Sender: TObject; var Key: Char);
+    procedure Btn3Click(Sender: TObject);
+    procedure Kol_FilClick(Sender: TObject);
+    procedure Mil_FilClick(Sender: TObject);
+    procedure Max_FilClick(Sender: TObject);
+    procedure Btn4Click(Sender: TObject);
+    procedure Btn1Click(Sender: TObject);
+    procedure Ex_itClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+var f:TextFile;
+    fname:String[18];
+    nbtn2:integer;
+
+procedure TForm1.FormActivate(Sender: TObject);//действия происходят, при открытии приложения
+var i: integer;
+begin
+  for i:=0 to ComponentCount-1 do
+    begin
+    {---Скрытие всех компонентов на форме, кроме главного меню---}
+      if components[i] is TLabel then (components[i] as TLabel).Visible:=false;
+      if components[i] is TEdit then (components[i] as TEdit).Visible:=false;
+      if components[i] is TButton then (components[i] as TButton).Visible:=false;
+      if components[i] is TStaticText then (components[i] as TStaticText).Visible:=false;
+    end;
+  with strg1 do
+    begin
+    {---Наименования колонок в StringGrid для городов-миллионников---}
+      cells[0,0]:='№';
+      cells[1,0]:='Наименование области';
+      cells[2,0]:='Название города';
+      cells[3,0]:='Количество жителей';
+      Visible:=False;//скрытие элемента
+    end;
+  App_Fil.Enabled:=false;//блокировка "Добавить данные"
+  Viw_Fil.Enabled:=false;//блокировка "Просмотреть данные"
+  N2.Enabled:=false;//блокирова "Решения задачи"
+  Memo1.Hide;//скрытие Memo
+end;
+
+procedure TForm1.Rew_FilClick(Sender: TObject);//кнопка гл.меню "Создать файл"
+begin
+  Lbl5.Show;//показать надпись "Введите имя файла"
+  Btn2.Show;//показать кнопку "Принято"
+  Ed4.Show;//показать строку ввода
+  Btn2.Enabled:=false;//блокировка кнопки "Принято"
+  Ed4.SetFocus;//установка курсора в строку ввода
+  nbtn2:=1;
+end;
+
+procedure TForm1.Red_FilClick(Sender: TObject);//кнопка гл.меню "Отскрыть файл"
+begin
+  Lbl5.Show;//показать надпись "Введите имя файла"
+  Btn2.Show;//показать кнопку "Принято"
+  Ed4.Show;//показать строку ввода
+  Btn2.Enabled:=false;//блокировка кнопки "Принято"
+  Ed4.SetFocus;//установка курсора в строку ввода
+  nbtn2:=2;
+end;
+
+procedure TForm1.Btn2Click(Sender: TObject);//при нажатии кнопки "Принято"
+begin
+  if Ed4.Text='' then //если строка ввода пустая
+  begin //вывести сообщение
+    showmessage('Вы не ввелим имя файла!+#13+Повторите ввод!');
+    Exit;
+  end; //если нет
+  fname:=Ed4.text;//имя файла считывается из строки ввода
+  assignfile(f,fname);
+  if nbtn2=1 then rewrite(f) else //если файл открывается проверяется наличие
+    begin
+      {$I-}
+      reset(f);
+      {$I+}
+      if IOResult<>0then //если такого файла не существует выводится сообщение
+        begin
+          showmessage('Такого файла не существует!'+#13+'Повторите ввод');
+          Ed4.Clear;//очистка строки ввода
+          Ed4.SetFocus;//курсор в строку ввода
+          exit;
+        end;
+    end;
+    closefile(f);//закрыть файл
+    Ed4.Clear;//очистить строку ввода
+    {---скрытие элементов ввода---}
+    Lbl5.Hide;
+    Ed4.Hide;
+    Btn2.Hide;
+    {---активация элементов главного меню---}
+    App_Fil.Enabled:=true;
+    Viw_Fil.Enabled:=true;
+    N2.Enabled:=true;
+end;
+
+procedure TForm1.Ed4Change(Sender: TObject);
+begin
+  Btn2.Enabled:=true;
+end;
+
+procedure TForm1.App_FilClick(Sender: TObject);//кнопка гл.меню "Добавить данные"
+begin
+{---Показать элементы, относящиеся к добавлению данных---}
+  Lbl1.Show;
+  Lbl2.Show;
+  Lbl3.Show;
+  Lbl4.Show;
+  Ed1.Show;
+  Ed2.Show;
+  Ed3.Show;
+  Ed1.SetFocus;
+  Ed2.Enabled:=false;
+  Ed3.Enabled:=false;
+  Btn1.Show;
+  Btn1.Enabled:=false;
+end;
+
+procedure TForm1.Viw_FilClick(Sender: TObject);//кнопка гл. меню "Просмотреть данные"
+var
+  snobl,snGor:string[20];
+  snkol:string[10];
+begin
+{---Показать элементы, относящиеся к просмотру данных и блок других элементов---}
+  Lbl6.Show;
+  Memo1.Show;
+  Btn3.Show;
+  reset(f);
+  N1.Enabled:=false;
+  N2.Enabled:=false;
+  While not eof(f) do
+    begin
+      Readln(f,snobl,snGor,snkol);
+      Memo1.Lines.Add(snobl+snGor+snkol);
+    end;
+  closefile(f);
+end;
+
+
+procedure TForm1.Ed1Change(Sender: TObject);
+begin
+  Ed2.Enabled:=true;
+end;
+
+procedure TForm1.Ed2Change(Sender: TObject);
+begin
+  Ed3.Enabled:=True;
+end;
+
+procedure TForm1.Ed3Change(Sender: TObject);
+begin
+  Btn1.Enabled:=true;
+end;
+
+procedure TForm1.Ed3KeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (key in['0'..'9']) then key:=Chr(0);
+end;
+
+procedure TForm1.Btn3Click(Sender: TObject);//"Завершить просмотр данных"
+begin
+  Lbl6.Hide;
+  Memo1.Clear;
+  Memo1.Hide;
+  Btn3.Hide;
+  N2.Enabled:=true;
+  N1.Enabled:=true;
+end;
+procedure TForm1.Kol_FilClick(Sender: TObject);//"Общее количество населения"
+var
+  s_kol:integer;
+  skol:integer;
+  snobl,snGor:String[20];
+begin
+  Lbl8.Show;
+  St2.Show;
+  Btn4.Show;
+  s_kol:=0;
+  reset(f);
+  while not eof(f) do
+    begin
+      readln(f,snobl);
+      readln(f,snGor);
+      readln(f,skol);
+      s_kol:=s_kol+skol;
+    end;
+  closefile(f);
+  St2.Caption:=IntTostr(s_kol);
+end;
+
+procedure TForm1.Mil_FilClick(Sender: TObject);//"Миллионные города"
+var
+  kol:word;
+  skol:integer;
+  snobl,snGor:String[20];
+begin
+  Lbl9.Show;
+  strg1.Show;
+  Btn4.Show;
+  reset(f);
+  kol:=1;
+  while not eof(f) do
+    begin
+      readln(f,snobl);
+      readln(f,snGor);
+      readln(f,skol);
+      if skol>1000000 then
+        begin
+          strg1.Cells[0,kol]:=IntToStr(kol);
+          strg1.Cells[1,kol]:=Trim(snobl);
+          strg1.Cells[2,kol]:=Trim(snGor);
+          strg1.Cells[3,kol]:=IntToStr(skol);
+          kol:=kol+1;
+          strg1.RowCount:=kol;
+          if strg1.Height<130 then strg1.Height:=strg1.RowCount*29;
+        end;
+    end;
+  closefile(f);
+end;
+
+procedure TForm1.Max_FilClick(Sender: TObject);//"Города с наибольшим количеством населения"
+var
+  max_kol:integer;
+  skol:integer;
+  snobl,snGor,smax:string[20];
+begin
+  Lbl7.Show;
+  St1.Show;
+  Btn4.Show;
+  max_kol:=-1000000;
+  reset(f);
+  while not eof(f) do
+    begin
+      readln(f,snobl);
+      readln(f,snGor);
+      readln(f,skol);
+      if skol>max_kol then
+        begin
+          max_kol:=skol;
+          smax:=snGor;
+        end;
+    end;
+  closefile(f);
+  St1.Caption:=Trim(Smax)+' '+IntToStr(max_kol);
+end;
+
+procedure TForm1.Btn4Click(Sender: TObject);//"Завершить просмотр решения задачи"
+begin
+  Lbl7.Hide;
+  strg1.Hide;
+  Btn4.Hide;
+  Lbl8.Hide;
+  St1.Hide;
+  Lbl9.Hide;
+  St2.Hide;
+  N1.Enabled:=true;
+end;
+
+procedure TForm1.Btn1Click(Sender: TObject);//Кнопка "Добавить"
+begin
+append(f);
+writeln(f,Ed1.text);
+writeln(f,Ed2.text);
+writeln(f,Ed3.text);
+ed1.Text:='';
+ed2.Text:='';
+ed3.Text:='';
+closefile(f);
+Viw_FilClick(Sender);
+end;
+procedure TForm1.Ex_itClick(Sender: TObject);//"Выход"
+begin
+close;
+end;
+
+end.
