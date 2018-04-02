@@ -1,0 +1,64 @@
+unit Unit1;
+interface
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Math;
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Memo1: TMemo;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Memo2: TMemo;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Button2: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);  
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+var
+  Form1: TForm1;
+implementation
+{$R *.dfm}
+
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  n=15;
+var
+  s,p,e,d,c,i:integer;
+  a:array[1..n] of integer;
+  t1,t2:textfile;
+begin
+  assignfile(t1,'1.txt');//файл с исходным массивом
+  assignfile(t2,'three_sum.txt');//файл для вывода результата
+  reset(t1);//открываю файл с исходным массивом
+  s:=strtoint(Edit1.Text);//в поле Edit1 считывается значение S
+  p:=strtoint(Edit2.Text);//в поле Edit2 считывается значение P
+  for i:=1 to n do
+    begin
+      readln(t1,a[i]);//чтение данных из файла с массивом
+      Memo1.Lines.Add(floattostr(a[i]));//перенос массива в Memo
+      e:=a[i] mod 10;//выделение единиц
+      d:=a[i] div 10 mod 10;//выделение десятков
+      c:=a[i] div 100;//выделение сотен
+      if (e+d+c=s) and (e*d*c=p) then//сравнение результатов с заданными S и P
+        begin
+          Memo2.Lines.Add(floattostr(a[i]));//вывод результата в Memo
+          append(t2);//открытие файла для вывода результата
+          writeln(t2,floattostr(a[i]));//записть результатов в файл
+          closefile(t2);//закрытие файла
+        end;
+    end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+close;
+end;
+end.
